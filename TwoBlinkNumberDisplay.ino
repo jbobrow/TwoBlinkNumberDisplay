@@ -83,7 +83,7 @@ byte getDisplayBinary(byte value) {
 
 void displayDigitFromBinary(byte digit) {
   FOREACH_FACE(f) {
-    if ((digit >> f) & 1) {
+    if ((digit >> (5-f)) & 1) {
       setColorOnFace(WHITE, f);
     }
     else {
