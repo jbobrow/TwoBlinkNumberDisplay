@@ -44,10 +44,12 @@ byte numTops[10] = { T_ZER, T_ONE, T_TWO, T_THR, T_FOU, T_FIV, T_SIX, T_SEV, T_E
 byte numBottoms[10] = { B_ZER, B_ONE, B_TWO, B_THR, B_FOU, B_FIV, B_SIX, B_SEV, B_EIG, B_NIN };
 
 // internal state for this Blink
-bool isTop = true;
+bool isTop = false;
 byte valueToDisplay = 0;
 
 byte neighborFace = 0;
+
+Timer timer;
 
 void setup() {
   // put your setup code here, to run once:
@@ -62,19 +64,27 @@ void loop() {
     isTop = !isTop;
   }
 
+  // increment display if pressed
   if (buttonPressed()) {
-    // increment display
     valueToDisplay = (valueToDisplay + 1) % 10;
   }
 
-  // get top neighbor 
+  // increment display every second if top
+  if (isTop) {
+    if (timer.isExpired()) {
+      valueToDisplay = (valueToDisplay + 1) % 10;
+      timer.set(1000);
+    }
+  }
+
+  // get top neighbor
   FOREACH_FACE(f) {
-    if(!isValueReceivedOnFaceExpired(f)) {
+    if (!isValueReceivedOnFaceExpired(f)) {
       neighborFace = f;
     }
   }
 
-  if(!isTop) {
+  if (!isTop) {
     valueToDisplay = getLastValueReceivedOnFace(neighborFace);
   }
 
@@ -108,7 +118,7 @@ byte getDisplayBinary(byte value) {
 
 void displayDigitFromBinary(byte digit) {
   FOREACH_FACE(f) {
-    if ((digit >> (5-f)) & 1) {
+    if ((digit >> (5 - f)) & 1) {
       setColorOnFace(WHITE, f);
     }
     else {
