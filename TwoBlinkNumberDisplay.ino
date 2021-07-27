@@ -50,6 +50,7 @@ byte valueToDisplay = 0;
 byte neighborFace = 0;
 
 Timer timer;
+word rate = 100;
 
 void setup() {
   // put your setup code here, to run once:
@@ -64,16 +65,18 @@ void loop() {
     isTop = !isTop;
   }
 
-  // increment display if pressed
-  if (buttonPressed()) {
-    valueToDisplay = (valueToDisplay + 1) % 10;
+  // change speed
+  if (buttonSingleClicked()) {
+    rate *= 10;
+    if ( rate == 100000 ) {
+      rate = 100;
+    }
   }
-
   // increment display every second if top
   if (isTop) {
     if (timer.isExpired()) {
       valueToDisplay = (valueToDisplay + 1) % 10;
-      timer.set(1000);
+      timer.set(rate);
     }
   }
 
