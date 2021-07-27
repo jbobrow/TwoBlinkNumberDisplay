@@ -5,7 +5,14 @@
    7.27.2021
 */
 
+// TODO: Orient display on 2 Blinks automatically, trivial with 1 Blink attached
+// TODO: Keep both Blinks in sync for the number they are displaying
+// One way to do this is to simply broadcast what the bottom should display
+
 // Use bits to store patterns for numbers
+// TODO: remove the enums and simply put the values in the arrays
+// Note: these enums are really not necessary once the patterns are finalized
+// (having them here makes it easy to make modifications to the design)
 enum numberTops {
   T_ONE = 36, // 100100
   T_TWO = 61, // 111101
@@ -16,7 +23,7 @@ enum numberTops {
   T_SEV = 61, // 111101
   T_EIG = 63, // 111111
   T_NIN = 63, // 111111
-  T_ZER = 59 // 111011
+  T_ZER = 59  // 111011
 };
 
 enum numberBottoms {
@@ -36,8 +43,11 @@ enum numberBottoms {
 byte numTops[10] = { T_ZER, T_ONE, T_TWO, T_THR, T_FOU, T_FIV, T_SIX, T_SEV, T_EIG, T_NIN };
 byte numBottoms[10] = { B_ZER, B_ONE, B_TWO, B_THR, B_FOU, B_FIV, B_SIX, B_SEV, B_EIG, B_NIN };
 
+// internal state for this Blink
 bool isTop = true;
 byte valueToDisplay = 0;
+
+byte neighborFace = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -57,7 +67,22 @@ void loop() {
     valueToDisplay = (valueToDisplay + 1) % 10;
   }
 
+  // get top neighbor 
+  FOREACH_FACE(f) {
+    if(!isValueReceivedOnFaceExpired(f)) {
+      neighborFace = f;
+    }
+  }
+
+  if(!isTop) {
+    valueToDisplay = getLastValueReceivedOnFace(neighborFace);
+  }
+
+  // display the value
   displayDigitFromBinary( getDisplayBinary( valueToDisplay ));
+
+  // communicate our value to display on our neighbor face
+  setValueSentOnFace( valueToDisplay, neighborFace );
 }
 
 /*
