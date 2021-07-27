@@ -32,6 +32,12 @@ enum numberBottoms {
   B_ZER = 31  // 011111
 };
 
+// array for tops and array for bottoms
+byte numTops[10] = { T_ZER, T_ONE, T_TWO, T_THR, T_FOU, T_FIV, T_SIX, T_SEV, T_EIG, T_NIN };
+byte numBottoms[10] = { B_ZER, B_ONE, B_TWO, B_THR, B_FOU, B_FIV, B_SIX, B_SEV, B_EIG, B_NIN };
+
+bool isTop = true;
+byte valueToDisplay = 0;
 
 void setup() {
   // put your setup code here, to run once:
@@ -41,6 +47,30 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
+  // toggle top
+  if (buttonLongPressed()) {
+    isTop = !isTop;
+  }
+
+  if (buttonPressed()) {
+    // increment display
+    valueToDisplay = (valueToDisplay + 1) % 10;
+  }
+
+  displayDigitFromBinary( getDisplayBinary( valueToDisplay ));
+}
+
+/*
+   Get the correct display half for the digit
+*/
+byte getDisplayBinary(byte value) {
+  // for value 0-9
+  if (isTop) {
+    return numTops[value];
+  }
+  else {
+    return numBottoms[value];
+  }
 }
 
 /*
