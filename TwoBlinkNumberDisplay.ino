@@ -48,6 +48,7 @@ bool isTop = false;
 byte valueToDisplay = 0;
 
 byte neighborFace = 0;
+byte rotationOffset = 0;
 
 Timer timer;
 uint32_t rate = 100;
@@ -81,19 +82,23 @@ void loop() {
     }
   }
 
-  // get top neighbor
+  // get neighbor face
   FOREACH_FACE(f) {
     if (!isValueReceivedOnFaceExpired(f)) {
       neighborFace = f;
     }
   }
 
-  if (!isTop) {
-    valueToDisplay = getLastValueReceivedOnFace(neighborFace);
+  if (isTop) {
+    rotationOffset = (neighborFace + 3) % 6;
+  }
+  else {
+    valueToDisplay = getLastValueReceivedOnFace(neighborFace);    
+    rotationOffset = neighborFace;
   }
 
-  // display the value
-  displayDigitFromBinary( getDisplayBinary( valueToDisplay ));
+  // display the value  
+  displayDigitFromBinary( getDisplayBinary( valueToDisplay ), rotationOffset);
 
   // communicate our value to display on our neighbor face
   setValueSentOnFace( valueToDisplay, neighborFace );
@@ -126,13 +131,14 @@ byte getDisplayBinary(byte value) {
 
 */
 
-void displayDigitFromBinary(byte digit) {
+void displayDigitFromBinary(byte digit, byte offset) {
+  
   FOREACH_FACE(f) {
     if ((digit >> (5 - f)) & 1) {
-      setColorOnFace(WHITE, f);
+      setColorOnFace(WHITE, (f+offset) % 6);
     }
     else {
-      setColorOnFace(OFF, f);
+      setColorOnFace(OFF, (f+offset) % 6);
     }
   }
 }
