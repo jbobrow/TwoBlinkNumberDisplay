@@ -30,7 +30,7 @@ enum numberBottoms {
   B_ONE = 36, // 100100
   B_TWO = 47, // 101111
   B_THR = 62, // 111110
-  B_FOU = 60, // 111100
+  B_FOU = 24, // 011000
   B_FIV = 62, // 111110
   B_SIX = 63, // 111111
   B_SEV = 35, // 100011
@@ -50,7 +50,7 @@ byte valueToDisplay = 0;
 byte neighborFace = 0;
 
 Timer timer;
-word rate = 100;
+uint32_t rate = 100;
 
 void setup() {
   // put your setup code here, to run once:
@@ -68,9 +68,10 @@ void loop() {
   // change speed
   if (buttonSingleClicked()) {
     rate *= 10;
-    if ( rate == 100000 ) {
+    if ( rate >= 100000 ) {
       rate = 100;
     }
+    timer.set(rate);
   }
   // increment display every second if top
   if (isTop) {
@@ -96,6 +97,12 @@ void loop() {
 
   // communicate our value to display on our neighbor face
   setValueSentOnFace( valueToDisplay, neighborFace );
+
+  if(isAlone()){
+    // show the speed
+    setColor(OFF);
+    setColorOnFace(WHITE, (millis()/rate) % 6);
+  }
 }
 
 /*
